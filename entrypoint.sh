@@ -35,6 +35,7 @@ docker_setup_env() {
     file_env 'MYSQL_DNSSEC'
 }
 
+docker_setup_env
 
 # --help, --version
 [ "$1" = "--help" ] || [ "$1" = "--version" ] && exec pdns_server $1
