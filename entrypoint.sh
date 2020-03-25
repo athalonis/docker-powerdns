@@ -1,6 +1,41 @@
 #!/bin/sh
 set -e
 
+# usage: file_env VAR
+#    ie: file_env 'XYZ_DB_PASSWORD'
+# (will allow for "$XYZ_DB_PASSWORD_FILE" to fill in the value of
+#  "$XYZ_DB_PASSWORD" from a file, especially for Docker's secrets feature)
+file_env() {
+    local var="$1"
+    local fileVar="${var-x}_FILE"
+    if [ "${!var-x}" != "x" ] && [ "${!fileVar-x}" != "x" ]; then
+        echo "Both $var and $fileVar are set (but are exclusive)"
+        exit 1
+    fi
+    if [ "${!var-x}" != "x" ]; then
+        val="${!var}"
+    elif [ "${!fileVar-x}" != "x" ]; then
+        val="$(cat "${!fileVar}")"
+    fi
+
+    if [ ${val-x} != "x" ] ; then
+        export "$var"="$val"
+        unset "val"
+    fi
+    unset "$fileVar"
+}
+
+# Loads various settings that are used elsewhere in the script
+docker_setup_env() {
+    # Initialize values that might be stored in a file
+    file_env 'MYSQL_DB'
+    file_env 'MYSQL_USER'
+    file_env 'MYSQL_PASS'
+    file_env 'MYSQL_HOST'
+    file_env 'MYSQL_DNSSEC'
+}
+
+
 # --help, --version
 [ "$1" = "--help" ] || [ "$1" = "--version" ] && exec pdns_server $1
 # treat everything except -- as exec cmd
