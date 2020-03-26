@@ -29,11 +29,12 @@ docker_setup_env() {
     # Initialize values that might be stored in a file
 
     file_env 'MYSQL_AUTOCONF' $MYSQL_DEFAULT_AUTOCONF
-    file_env 'MYSQL_DB' $MYSQL_DEFAULT_HOST
-    file_env 'MYSQL_USER' $MYSQL_DEFAULT_PORT
-    file_env 'MYSQL_PASS' $MYSQL_DEFAULT_USER
-    file_env 'MYSQL_HOST' $MYSQL_DEFAULT_PASS
-    file_env 'MYSQL_DNSSEC' $MYSQL_DEFAULT_DB
+    file_env 'MYSQL_HOST' $MYSQL_DEFAULT_HOST
+    file_env 'MYSQL_DNSSEC' 'no'
+    file_env 'MYSQL_DB' $MYSQL_DEFAULT_DB
+    file_env 'MYSQL_PASS' $MYSQL_DEFAULT_PASS
+    file_env 'MYSQL_USER' $MYSQL_DEFAULT_USER
+    file_env 'MYSQL_PORT' $MYSQL_DEFAULT_PORT
 }
 
 docker_setup_env
@@ -44,12 +45,6 @@ docker_setup_env
 [ "${1:0:2}" != "--" ] && exec "$@"
 
 if $MYSQL_AUTOCONF ; then
-  if [ -z "$MYSQL_PORT" ]; then
-      MYSQL_PORT=3306
-  fi
-  if [ -z "$MYSQL_DNSSEC" ]; then
-      MYSQL_DNSSEC='no'
-  fi
   # Set MySQL Credentials in pdns.conf
   sed -r -i "s/^[# ]*gmysql-host=.*/gmysql-host=${MYSQL_HOST}/g" /etc/pdns/pdns.conf
   sed -r -i "s/^[# ]*gmysql-port=.*/gmysql-port=${MYSQL_PORT}/g" /etc/pdns/pdns.conf
