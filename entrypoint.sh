@@ -1,27 +1,25 @@
 #!/bin/sh
 set -e
 
-# usage: file_env VAR
-#    ie: file_env 'XYZ_DB_PASSWORD'
+# usage: file_env VAR [DEFAULT]
+#    ie: file_env 'XYZ_DB_PASSWORD' 'example'
 # (will allow for "$XYZ_DB_PASSWORD_FILE" to fill in the value of
 #  "$XYZ_DB_PASSWORD" from a file, especially for Docker's secrets feature)
+# source: https://github.com/docker-library/mariadb/blob/master/docker-entrypoint.sh
 file_env() {
     local var="$1"
-    local fileVar="${var-x}_FILE"
-    if [ "${!var-x}" != "x" ] && [ "${!fileVar-x}" != "x" ]; then
-        echo "Both $var and $fileVar are set (but are exclusive)"
-        exit 1
+    local fileVar="${var}_FILE"
+    local def="${2:-}"
+    if [ "${!var:-}" ] && [ "${!fileVar:-}" ]; then
+        mysql_error "Both $var and $fileVar are set (but are exclusive)"
     fi
-    if [ "${!var-x}" != "x" ]; then
+    local val="$def"
+    if [ "${!var:-}" ]; then
         val="${!var}"
-    elif [ "${!fileVar-x}" != "x" ]; then
-        val="$(cat "${!fileVar}")"
+    elif [ "${!fileVar:-}" ]; then
+        val="$(< "${!fileVar}")"
     fi
-
-    if [ ${val-x} != "x" ] ; then
-        export "$var"="$val"
-        unset "val"
-    fi
+    export "$var"="$val"
     unset "$fileVar"
 }
 
