@@ -3,12 +3,12 @@ MAINTAINER Christoph Wiechert <wio@psitrax.de>
 
 ENV REFRESHED_AT="2019-10-10" \
     POWERDNS_VERSION=4.2.0 \
-    MYSQL_AUTOCONF=true \
-    MYSQL_HOST="mysql" \
-    MYSQL_PORT="3306" \
-    MYSQL_USER="root" \
-    MYSQL_PASS="root" \
-    MYSQL_DB="pdns"
+    MYSQL_DEFAULT_AUTOCONF=true \
+    MYSQL_DEFAULT_HOST="mysql" \
+    MYSQL_DEFAULT_PORT="3306" \
+    MYSQL_DEFAULT_USER="root" \
+    MYSQL_DEFAULT_PASS="root" \
+    MYSQL_DEFAULT_DB="pdns"
 
 RUN apk --update add bash libpq sqlite-libs libstdc++ libgcc mariadb-client mariadb-connector-c && \
     apk add --virtual build-deps \

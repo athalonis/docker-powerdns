@@ -1,5 +1,6 @@
 #!/bin/bash
 set -e
+set -x
 
 # usage: file_env VAR [DEFAULT]
 #    ie: file_env 'XYZ_DB_PASSWORD' 'example'
@@ -11,7 +12,8 @@ file_env() {
     local fileVar="${var}_FILE"
     local def="${2:-}"
     if [ "${!var:-}" ] && [ "${!fileVar:-}" ]; then
-        mysql_error "Both $var and $fileVar are set (but are exclusive)"
+        echo "Both $var and $fileVar are set (but are exclusive)"
+        exit 1
     fi
     local val="$def"
     if [ "${!var:-}" ]; then
@@ -26,11 +28,13 @@ file_env() {
 # Loads various settings that are used elsewhere in the script
 docker_setup_env() {
     # Initialize values that might be stored in a file
-    file_env 'MYSQL_DB'
-    file_env 'MYSQL_USER'
-    file_env 'MYSQL_PASS'
-    file_env 'MYSQL_HOST'
-    file_env 'MYSQL_DNSSEC'
+
+    file_env 'MYSQL_AUTOCONF' $MYSQL_DEFAULT_AUTOCONF
+    file_env 'MYSQL_DB' $MYSQL_DEFAULT_HOST
+    file_env 'MYSQL_USER' $MYSQL_DEFAULT_PORT
+    file_env 'MYSQL_PASS' $MYSQL_DEFAULT_USER
+    file_env 'MYSQL_HOST' $MYSQL_DEFAULT_PASS
+    file_env 'MYSQL_DNSSEC' $MYSQL_DEFAULT_DB
 }
 
 docker_setup_env
